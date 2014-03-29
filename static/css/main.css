@@ -1,0 +1,33 @@
+.my-theme{
+    padding-top: 65px;
+}
+
+.my-leap{
+    display: none;
+    font-size: 100px;
+    font-weight: 400;
+    font-family: 'The Girl Next Door', cursive;
+    background: url('/static/images/background.png');
+    color: #ffffff;
+}
+
+#fingers{
+    width: 100%;
+    text-align: center;
+}
+
+#hands, #fingers, #current-val, #error{
+    float: left;
+}
+
+.expression{
+    font-size: 50px;
+    font-weight: 100;
+}
+
+#result{
+    display: none;
+    float: left;
+    font-weight: bold;
+    font-size: 50px;
+}

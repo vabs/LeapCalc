@@ -1,9 +1,12 @@
 /**
  * Created by demo on 28/03/14.
  */
-
-
-leapController = new Leap.Controller({ enableGestures: true });
+$(function(){
+    $("button#startBtn").click(function(){
+        $("div.my-leap").fadeIn('slow');
+    });
+});
+leapController = new Leap.Controller({ enableGestures: true, downtime: 1000 });
 
 //trainer = new LeapTrainer.Controller({controller: leapController, downtime: 1000});
 
@@ -20,40 +23,104 @@ leapController.connect();
 
 
 leapController.on('frame', function(frame){
-     for( var i =  0; i < frame.gestures.length; i++){
+    for( var i =  0; i < frame.gestures.length; i++){
+        var gesture  = frame.gestures[0];
+        var type = gesture.type;
+        console.log(type);
+        switch( type ){
+            case "screenTap":
+                console.log('hello!!');
+                if( gesture.state == "start"){
+                    console.log('started tapping!');
+                }
+                if ( gesture.state == "stop"){
+                    getResult($("#current-val").html());
+                }
+                break;
+            case "keyTap":
+                if ( gesture.state == "stop"){
+                    console.log('keyTap');
+                    document.getElementById("current-val").innerHTML += fingers;
+                    break;
+                }
+            case "circle":
+                if(gesture.state == "stop"){
+                    var clockwise = false;
+                    var pointableID = gesture.pointableIds[0];
+                    var direction = frame.pointable(pointableID).direction;
+                    var dotProduct = Leap.vec3.dot(direction, gesture.normal);
+                    if (dotProduct  >  0) {
+                        clockwise = true;
+                        var current = document.getElementById("current-val").innerHTML;
+                        console.log("current length", current.length);
+                        console.log("current length -2 ", current[current.length-2]);
+                        if ( current.length == 0){}
+                        else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"){
+                            $("#error").fadeIn("invalid input").fadeOut();
+                        }
+                        else{
+                            document.getElementById("current-val").innerHTML += " + ";
+                        }
+                    }
+                    else{
+                        console.log("going anti");
+                        var current = document.getElementById("current-val").innerHTML;
+                        console.log("current length", current.length);
+                        console.log("current length -2 ", current[current.length-2]);
+                        if ( current.length == 0 ){}
+                        else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"){
+                            $("#error").html("invalid input");
+                        }
 
-    var gesture  = frame.gestures[0];
-    var type = gesture.type;
-    console.log(type);
-    switch( type ){
-    case "keyTap":
-        console.log('keyTap ');
-        console.log(document.getElementById("current-val").innerHTML);
-        break;
-    default:
-        console.log('something else');
-            break;
-    }
-
-    }
+                        else{
+                            document.getElementById("current-val").innerHTML += " - ";
+                        }
+                    }
+                }
+                break;
+            default:
+                console.log('something else');
+                console.log(gesture.direction)
+                break;
+            }
+        }
 });
 
 leapController.loop(function(obj) {
-  var hands = obj.hands.length;
-  var fingers = obj.pointables.length;
+//var hands = obj.hands.length;
+fingers = obj.pointables.length;
 
 
-var handsDiv = document.getElementById("hands");
+//var handsDiv = document.getElementById("hands");
 var fingersDiv = document.getElementById("fingers");
 
-var handsDesc = document.getElementById("description-hands");
+//var handsDesc = document.getElementById("description-hands");
 var fingersDesc = document.getElementById("description-fingers");
 
-handsDiv.innerHTML = hands;
+//handsDiv.innerHTML = hands;
 fingersDiv.innerHTML = fingers;
 
 //var a = hands == 1 ? "hand" : "hands";
 var b = fingers == 1 ? "finger" : "fingers";
-document.getElementById("current-val").innerHTML = fingers + " ";
 
 });
+
+
+function getResult(query)
+{
+    $.ajax({
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        crossDomain: true,
+        type:"GET",
+        url: "http://127.0.0.1:80/getwolframalpha/" + query,
+        dataType:"json",
+        "beforeSend": function(){
+            $("div#result").fadeIn().html("Calculating!");
+        }
+        }).done(function(response) {
+            $("div#result").html(" = " + response['result']);
+            console.log(response);
+    });
+}
+
+
