@@ -6,7 +6,7 @@ $(function(){
         $("div.my-leap").fadeIn('slow');
     });
 });
-leapController = new Leap.Controller({ enableGestures: true, downtime: 1000 });
+leapController = new Leap.Controller({ enableGestures: true, downtime: 2000 });
 
 //trainer = new LeapTrainer.Controller({controller: leapController, downtime: 1000});
 
@@ -39,6 +39,7 @@ leapController.on('frame', function(frame){
                 break;
             case "keyTap":
                 if ( gesture.state == "stop"){
+                    console.log(gesture);
                     console.log('keyTap');
                     document.getElementById("current-val").innerHTML += fingers;
                     break;
@@ -55,7 +56,8 @@ leapController.on('frame', function(frame){
                         console.log("current length", current.length);
                         console.log("current length -2 ", current[current.length-2]);
                         if ( current.length == 0){}
-                        else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"){
+                        else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"
+                            ||  current[current.length-2] == "*" ||  current[current.length-2] == "/"){
                             $("#error").fadeIn("invalid input").fadeOut();
                         }
                         else{
@@ -68,7 +70,8 @@ leapController.on('frame', function(frame){
                         console.log("current length", current.length);
                         console.log("current length -2 ", current[current.length-2]);
                         if ( current.length == 0 ){}
-                        else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"){
+                        else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"
+                            ||  current[current.length-2] == "*" ||  current[current.length-2] == "/"){
                             $("#error").html("invalid input");
                         }
 
@@ -78,9 +81,39 @@ leapController.on('frame', function(frame){
                     }
                 }
                 break;
-            default:
-                console.log('something else');
-                console.log(gesture.direction)
+            case "swipe":
+                   if(gesture.state == "stop"){
+                        if(gesture.direction[0] < 0){
+                            console.log('moved left');
+                            var current = document.getElementById("current-val").innerHTML;
+                            console.log("current length", current.length);
+                            console.log("current length -2 ", current[current.length-2]);
+                            if ( current.length == 0 ){}
+                            else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"
+                                      ||  current[current.length-2] == "*" ||  current[current.length-2] == "/"){
+                                $("#error").html("invalid input");
+                            }
+
+                            else{
+                                document.getElementById("current-val").innerHTML += " * ";
+                            }
+                        }
+                        else{
+                                console.log('moved right');
+                                var current = document.getElementById("current-val").innerHTML;
+                                console.log("current length", current.length);
+                                console.log("current length -2 ", current[current.length-2]);
+                                if ( current.length == 0 ){}
+                                else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"
+                                          ||  current[current.length-2] == "*" ||  current[current.length-2] == "/"){
+                                    $("#error").html("invalid input");
+                                }
+
+                                else{
+                                    document.getElementById("current-val").innerHTML += " / ";
+                                }
+                           }
+                   }
                 break;
             }
         }
@@ -108,19 +141,34 @@ var b = fingers == 1 ? "finger" : "fingers";
 
 function getResult(query)
 {
-    $.ajax({
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        crossDomain: true,
-        type:"GET",
-        url: "http://127.0.0.1:80/getwolframalpha/" + query,
-        dataType:"json",
-        "beforeSend": function(){
-            $("div#result").fadeIn().html("Calculating!");
-        }
-        }).done(function(response) {
-            $("div#result").html(" = " + response['result']);
-            console.log(response);
-    });
+    $("div#result").fadeIn().html("Calculating!");
+    query = query.split(" ").join("");
+    //console.log(eval(query));
+    $("div#result").html(eval(query));
+    //query = encodeURIComponent(query);
+    //console.log("sending query", query);
+//    $.ajax({
+//        headers: { 'Access-Control-Allow-Origin': '*' },
+//        crossDomain: true,
+//        type:"GET",
+//        url: "http://127.0.0.1:80/getwolframalpha/" + query,
+//        dataType:"json",
+//        "beforeSend": function(){
+//            $("div#result").fadeIn().html("Calculating!");
+//        },
+//        "error": function(status, xhr, res){
+//            console.log('status');
+//            $("div#result").fadeIn().html("Error!!! Try Again Later!");
+//        }
+//        }).done(function(response) {
+//            if( response['result'] === undefined){
+//                $("div#result").html(query);
+//            }
+//            else{
+//                $("div#result").html(" = " + response['result']);
+//            }
+//            console.log(response);
+//    });
 }
 
 
