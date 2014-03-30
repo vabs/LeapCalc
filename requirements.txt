@@ -1,8 +1,6 @@
 Pillow==2.0.0
 gunicorn==18.0
 httplib2==0.8
-lazr.restfulclient==0.13.3
-lazr.uri==1.0.3
 lxml==3.2.0
 oauth==1.0.1
 oauthlib==0.5.1
