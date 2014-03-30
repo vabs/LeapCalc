@@ -1,7 +1,6 @@
 Genshi==0.7
 Mako==0.8.1
 MarkupSafe==0.15
-PAM==0.4.2
 Pillow==2.0.0
 SecretStorage==1.0.0
 Trac==1.0.1
