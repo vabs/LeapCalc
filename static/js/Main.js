@@ -5,7 +5,18 @@ $(function(){
     $("button#startBtn").click(function(){
         $("div.my-leap").fadeIn('slow');
     });
+
+    $("body").keyup(function(e){
+        if(e.keyCode == 82){
+            $("div#current-val").empty();
+            $("div#result").empty();
+            //leapController = new Leap.Controller({ enableGestures: true, downtime: 1000 });
+            leapController.connect();
+            //console.log(leapController);
+        }
+    });
 });
+
 leapController = new Leap.Controller({ enableGestures: true, downtime: 1000 });
 
 leapController.connect();
@@ -36,6 +47,9 @@ leapController.on('frame', function(frame){
                     var clockwise = false;
                     var pointableID = gesture.pointableIds[0];
                     var direction = frame.pointable(pointableID).direction;
+                    if(direction == undefined){
+                        break;
+                    }
                     var dotProduct = Leap.vec3.dot(direction, gesture.normal);
                     if (dotProduct  >  0) {
                         clockwise = true;
@@ -59,7 +73,7 @@ leapController.on('frame', function(frame){
                         if ( current.length == 0 ){}
                         else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"
                              ||  current[current.length-2] == "*" ||  current[current.length-2] == "/"){
-                            $("#error").html("invalid input");
+                            $("#error").fadeIn("invalid input").fadeOut();
                         }
 
                         else{
@@ -78,7 +92,7 @@ leapController.on('frame', function(frame){
                         if ( current.length == 0 ){}
                         else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"
                                   ||  current[current.length-2] == "*" ||  current[current.length-2] == "/"){
-                            $("#error").html("invalid input");
+                            $("#error").fadeIn("invalid input").fadeOut();
                         }
 
                         else{
@@ -93,9 +107,8 @@ leapController.on('frame', function(frame){
                             if ( current.length == 0 ){}
                             else if ( current[current.length-2] == "+" ||  current[current.length-2] == "-"
                                       ||  current[current.length-2] == "*" ||  current[current.length-2] == "/"){
-                                $("#error").html("invalid input");
+                                $("#error").fadeIn("invalid input").fadeOut();
                             }
-
                             else{
                                 document.getElementById("current-val").innerHTML += " / ";
                             }
@@ -107,31 +120,41 @@ leapController.on('frame', function(frame){
 });
 
 leapController.loop(function(obj) {
-//var hands = obj.hands.length;
-fingers = obj.pointables.length;
+    fingers = obj.pointables.length;
 
+    var fingersDiv = document.getElementById("fingers");
+    var fingersDesc = document.getElementById("description-fingers");
+    fingersDiv.innerHTML = fingers;
 
-//var handsDiv = document.getElementById("hands");
-var fingersDiv = document.getElementById("fingers");
+    if ( fingers == 10){
+        fingers = 0;
+    }
 
-//var handsDesc = document.getElementById("description-hands");
-var fingersDesc = document.getElementById("description-fingers");
+    if ( fingers > 10){
+        fingers = 10;
+    }
 
-//handsDiv.innerHTML = hands;
-fingersDiv.innerHTML = fingers;
-
-//var a = hands == 1 ? "hand" : "hands";
-var b = fingers == 1 ? "finger" : "fingers";
-
+    var b = fingers == 1 ? "finger" : "fingers";
 });
 
 
 function getResult(query)
 {
-    $("div#result").fadeIn().html("Calculating!");
-    query = query.split(" ").join("");
-    //console.log(eval(query));
-    $("div#result").html(eval(query));
+    try{
+        $("div#result").fadeIn().html("Calculating!");
+        query = query.split(" ").join("");
+
+        console.log(eval(query));
+        $("div#result").html("= " + eval(query));
+
+    }
+    catch(err){
+        console.log('Some error Occurred');
+        $("div#error").fadeIn().html('!! 3RROR !!').fadeOut();
+        $("body").trigger("keyup");
+    }
+    leapController.disconnect();
+
     //query = encodeURIComponent(query);
     //console.log("sending query", query);
 //    $.ajax({
