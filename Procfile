@@ -1,1 +1,1 @@
-web: gunicorn leapcalc:app
+web: gunicorn LeapCalc:app

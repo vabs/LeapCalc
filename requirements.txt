@@ -1,7 +1,6 @@
 Pillow==2.0.0
 gunicorn==18.0
 httplib2==0.8
-lxml==3.2.0
 oauth==1.0.1
 oauthlib==0.5.1
 pyxdg==0.25
